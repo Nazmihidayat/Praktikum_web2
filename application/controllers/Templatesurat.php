@@ -1,29 +1,40 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
+defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Templatesurat extends CI_Controller
-{
-    public function __construct()
-    {
+class Templatesurat extends CI_Controller {
+    public function __construct(){
         parent::__construct();
         $this->load->model("Template_model");
         cek_login();
         $this->load->library('form_validation');
     }
-
-    public function index()
-    {
+    
+    public function index(){
         $data = array(
             'title' => 'View Data History',
-            'userlog' => infoLogin(),
+            'userlog'=> infoLogin(),
             'template' => $this->Template_model->getAll(),
-            'content' => 'Template_surat/index'
+            'content'=> 'Template_surat/index'
         );
-        $this->load->view('template_user/main', $data);
+        $this->load->view('template_user/main',$data);
     }
-
-    public function surat_ajuan($id)
-    {
+    public function add(){
+        $data = array(
+            'title' => 'Tambah Data Template surat',
+            'userlog'=> infoLogin(),
+            'content'=> 'Template_surat/add_form'
+        ); 
+        $this->load->view('template_user/main',$data);
+    }
+    
+    public function save(){ 
+        $this->Masuk_model->saveAjuan();
+        if($this->db->affected_rows()>0){
+            $this->session->set_flashdata("success","Data Surat Masuk Berhasil DiSimpan");
+        } 
+        redirect('template_surat');
+    }
+    public function Template_surat($id){
         $surat = $this->Template_model->getById($id);
         $nama = $surat->nama;
         $perihal = $surat->perihal;
@@ -38,10 +49,10 @@ class Templatesurat extends CI_Controller
         $document = str_replace("#SURAT_TO", $kepada, $document);
         $document = str_replace("#DATE", $date, $document);
         // header untuk membuka file output RTF dengan MS. Word
-
+        
         header("Content-type: application/msword");
         header("Content-disposition: inline; filename=Laporan_contoh.doc");
-        header("Content-length: " . strlen($document));
+        header("Content-length: ".strlen($document));
         echo $document;
-    }
+    } 
 }
